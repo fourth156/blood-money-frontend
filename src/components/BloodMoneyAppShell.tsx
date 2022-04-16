@@ -8,14 +8,16 @@ import {
   Text,
 } from '@mantine/core';
 import React from 'react';
-import { Link } from 'react-location';
+import { Link, MatchRoute } from 'react-location';
+import Transaction from './Transaction';
 
 type Props = React.PropsWithChildren<{}>;
+
 
 export default function BloodMoneyAppShell({children}: Props) {
   const theme = useMantineTheme();
   const [opened, setOpened] = React.useState(false);
-
+  
   return (
     <AppShell
       styles={{
@@ -35,6 +37,7 @@ export default function BloodMoneyAppShell({children}: Props) {
           hidden={!opened}
           width={{sm: 200, lg: 300}}>
           <Text color={theme.colors.gray[0]}>🐔🐔Cán bộ gà🐔🐔</Text>
+          <Transaction />
         </Navbar>
       }
       header={
@@ -49,7 +52,9 @@ export default function BloodMoneyAppShell({children}: Props) {
                 mr='xl'
               />
             </MediaQuery>
-            <Link to='/' color={theme.colors.gray[0]}>Chia máu</Link>
+            <Link to='/' color={theme.colors.gray[0]}>
+              Chia máu
+            </Link>
           </div>
         </Header>
       }>

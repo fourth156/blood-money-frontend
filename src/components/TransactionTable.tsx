@@ -1,8 +1,9 @@
 import {Box, createStyles, Skeleton, Table} from '@mantine/core';
 import {useNavigate} from 'react-location';
 import {useTransactionsQuery} from '../queries/useTransactionQuery';
-import {CellProps, Column, useTable} from 'react-table';
+import {CellProps, Column, loopHooks, useRowSelect, useTable} from 'react-table';
 import {Transaction as ITransaction} from '../types/Transaction';
+import React from 'react';
 
 const useStyles = createStyles((theme) => ({
   pre: {
@@ -24,6 +25,11 @@ const dateRenderer = ({ value }: CellProps<ITransaction, Date>) => {
 
 const columns: Array<Column<ITransaction>> = [
   {
+    Header: 'Created At',
+    accessor: 'createdAt',
+    Cell: dateRenderer
+  },
+  {
     Header: 'Transaction ID',
     accessor: 'id',
   },
@@ -44,11 +50,6 @@ const columns: Array<Column<ITransaction>> = [
     accessor: 'refId',
   },
   {
-    Header: 'Created At',
-    accessor: 'createdAt',
-    Cell: dateRenderer
-  },
-  {
     Header: 'Updated At',
     accessor: 'updatedAt',
     Cell: dateRenderer
@@ -56,14 +57,19 @@ const columns: Array<Column<ITransaction>> = [
 ];
 
 export default function TransactionTable() {
-  const {classes} = useStyles();
+  const {classes} = useStyles()
   const {isLoading, data} = useTransactionsQuery({
     index: 'ALL',
     indexValue: 'ALL',
   });
   const navigate = useNavigate();
-  const {getTableProps, getTableBodyProps, headerGroups, rows, prepareRow} =
-    useTable<ITransaction>({columns, data: data ?? []});
+  const tableInstance = useTable<ITransaction>({columns, data: data ?? []}, useRowSelect);
+  
+  const {getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, setHiddenColumns} = tableInstance
+  const {toggleAllRowsSelected} = tableInstance as any;
+  React.useEffect(() => {
+    setHiddenColumns(['id', 'updatedAt', 'refId']);
+  }, [setHiddenColumns]);
 
   return (
     <>
@@ -75,7 +81,7 @@ export default function TransactionTable() {
         </>
       )}
       {!isLoading && (
-        <Table striped highlightOnHover {...getTableProps()}>
+        <Table highlightOnHover {...getTableProps()}>
           <thead>
             {headerGroups.map((g) => (
               <tr {...g.getHeaderGroupProps()}>
@@ -94,7 +100,10 @@ export default function TransactionTable() {
                 <tr
                   className={classes.row}
                   {...row.getRowProps()}
-                  onDoubleClick={() => navigate({to: `/transactions/${row.values.id}`})}>
+                  onClick={() => {
+                    navigate({search: { transactionId: row.values.id}});
+                    (row as any).toggleRowSelected();
+                  }}>
                   {row.cells.map((cell) => {
                     return (
                       <td {...cell.getCellProps()}>{cell.render('Cell')}</td>

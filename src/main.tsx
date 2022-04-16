@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import {MantineProvider} from '@mantine/core';
 import {QueryClient, QueryClientProvider} from 'react-query';
 
 export const queryClient = new QueryClient({
@@ -10,18 +9,16 @@ export const queryClient = new QueryClient({
     queries: {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      refetchInterval: false
-    }
-  }
+      refetchInterval: false,
+    },
+  },
 });
 
 ReactDOM.render(
   <React.StrictMode>
-    <MantineProvider theme={{ colorScheme: 'light' }}>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </MantineProvider>
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
